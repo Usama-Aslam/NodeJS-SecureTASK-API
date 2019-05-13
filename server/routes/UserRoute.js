@@ -2,6 +2,7 @@ const express = require("express");
 const _ = require("lodash");
 
 const { User } = require("../models/User");
+const { authentication } = require("../middleware/authentication");
 
 const router = new express.Router();
 
@@ -33,4 +34,7 @@ router.post("/user/signup", async (req, res) => {
   }
 });
 
+router.get("/user/me", authentication, async (req, res) => {
+  res.status(200).send(req.user);
+});
 module.exports = router;

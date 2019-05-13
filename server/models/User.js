@@ -49,8 +49,6 @@ UserSchema.methods.toJSON = function() {
   //converting mongoose document into object so that we can get values from object
   const userObject = user.toObject();
 
-  console.log(userObject);
-
   //returning only email and id from the document
   return _.pick(userObject, ["_id", "email"]);
 };
@@ -87,6 +85,25 @@ UserSchema.methods.generateAuthToken = function() {
 };
 
 //------------------------------------
+
+//---------Model Methods--------------------
+
+UserSchema.statics.findByCredentials = function(body) {
+  let User = this;
+
+  return User.findOne({ email: body.email }).then(user => {
+    if (!user) return Promise.reject({ error: "invalid email" });
+    return new Promise((response, reject) => {
+      bcrypt.compare(body.password, user.password, (err, res) => {
+        if (res) {
+          return response(user);
+        } else {
+          reject({ error: "invalid password" });
+        }
+      });
+    });
+  });
+};
 
 const User = mongoose.model("Users", UserSchema);
 
