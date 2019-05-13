@@ -37,4 +37,22 @@ router.post("/user/signup", async (req, res) => {
 router.get("/user/me", authentication, async (req, res) => {
   res.status(200).send(req.user);
 });
+
+router.post("/user/login", async (req, res) => {
+  const fields = ["email", "password"];
+  if (!ValidField(req, fields))
+    return res.status(400).send({ error: "invalid fields" });
+
+  const body = _.pick(req.body, fields);
+  try {
+    const user = await User.findByCredentials(body);
+    const token = user.generateAuthToken();
+    res
+      .status(200)
+      .header("x-auth", token)
+      .send(user);
+  } catch (error) {
+    res.status(401).send(error);
+  }
+});
 module.exports = router;

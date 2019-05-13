@@ -87,6 +87,22 @@ UserSchema.methods.generateAuthToken = function() {
 //------------------------------------
 
 //---------Model Methods--------------------
+UserSchema.statics.findByToken = function(token) {
+  let User = this;
+  let decoded;
+
+  try {
+    decoded = jwt.verify(token, SECRET);
+  } catch (error) {
+    return Promise.reject({ error: "invalid token" });
+  }
+
+  return User.findOne({
+    _id: decoded._id,
+    "tokens.token": token,
+    "tokens.access": decoded.access
+  });
+};
 
 UserSchema.statics.findByCredentials = function(body) {
   let User = this;
