@@ -21,7 +21,7 @@ const UserSchema = new mongoose.Schema({
     required: true,
     minlength: 3,
     validate(value) {
-      if (value.toLowercase() === "password") {
+      if (value.toLowerCase() === "password") {
         throw new Error("password can't be 'password'");
       }
     }
@@ -42,4 +42,4 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.model("Users", UserSchema);
 
-module.exports == { User };
+module.exports = { User };
