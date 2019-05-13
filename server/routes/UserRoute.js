@@ -21,12 +21,16 @@ router.post("/user/signup", async (req, res) => {
   const user = new User(body);
 
   try {
-    await user.save();
-    res.status(200).send(user);
+    const result = await user.save();
+    const token = await result.generateAuthToken();
+
+    res
+      .status(200)
+      .header("x-auth", token)
+      .send({ user: result });
   } catch (error) {
     res.status(400).send(error);
   }
 });
-
 
 module.exports = router;
