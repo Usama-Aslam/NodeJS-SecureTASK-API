@@ -1,10 +1,28 @@
 const express = require("express");
 const _ = require("lodash");
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
 
 const { User } = require("../models/User");
 const { authentication } = require("../middleware/authentication");
+const {
+  emailAuthentication,
+  verificationEmail
+} = require("../middleware/verificationEmail");
 
 const router = new express.Router();
+
+// var smtpTransport = nodemailer.createTransport({
+//   service: "Gmail",
+//   auth: {
+//     user: "uaslam345@gmail.com",
+//     pass: "03432226546@"
+//   },
+//   tls: {
+//     rejectUnauthorized: false
+//   }
+// });
+// var rand, mailOptions, host, link;
 
 const ValidField = (req, fields) => {
   const keys = Object.keys(req.body);
@@ -55,4 +73,43 @@ router.post("/user/login", async (req, res) => {
     res.status(401).send(error);
   }
 });
+
+router.patch("/user/me", authentication, async (req, res) => {
+  const updates = Object.keys(req.body);
+  const fields = ["password", "newPassword", "confirmPassword"];
+
+  if (!ValidField(req, fields))
+    return res.status(400).send({ error: "invalid input" });
+
+  const body = _.pick(req.body, fields);
+
+  try {
+    await req.user.validatePassword(body);
+
+    if (
+      _.isEqual(body.newPassword, body.confirmPassword) &&
+      typeof body[("confirmPassword", "newPassword")] !== "undefined"
+    ) {
+      req.user["password"] = body["newPassword"];
+      await req.user.save();
+
+      res.status(200).send(req.user);
+    } else {
+      res.status(400).send({ error: "password doesnot match" });
+    }
+  } catch (error) {
+    res.status(401).send(error);
+  }
+});
+
+router.get("/user/send", emailAuthentication, (req, res) => {
+  try {
+    res.status(200).send("sent");
+  } catch (error) {
+    res.status(408).send(error);
+  }
+});
+
+router.get("/user/verify", verificationEmail, (req, res) => {});
+
 module.exports = router;

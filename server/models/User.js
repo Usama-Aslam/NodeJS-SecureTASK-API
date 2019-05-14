@@ -44,19 +44,21 @@ const UserSchema = new mongoose.Schema({
   ]
 });
 
-UserSchema.methods.toJSON = function() {
-  const user = this;
-  //converting mongoose document into object so that we can get values from object
-  const userObject = user.toObject();
+// UserSchema.methods.toJSON = function() {
+//   const user = this;
+//   //converting mongoose document into object so that we can get values from object
+//   const userObject = user.toObject();
 
-  //returning only email and id from the document
-  return _.pick(userObject, ["_id", "email"]);
-};
+//   //returning only email and id from the document
+//   return _.pick(userObject, ["_id", "email"]);
+// };
 
 //-----------Mongoose MiddleWare-------------
 
 UserSchema.pre("save", function(next) {
   let user = this;
+
+  console.log("changes made");
 
   if (user.isModified("password")) {
     bcrypt.genSalt(10, (error, salt) => {
@@ -72,7 +74,7 @@ UserSchema.pre("save", function(next) {
 
 //-------------------------------------------
 
-//----------Instance Methods-----------
+//==============Instance Methods===========
 
 UserSchema.methods.generateAuthToken = function() {
   let user = this;
@@ -84,9 +86,25 @@ UserSchema.methods.generateAuthToken = function() {
   return user.save().then(doc => token);
 };
 
-//------------------------------------
+UserSchema.methods.validatePassword = function(body) {
+  let user = this;
 
-//---------Model Methods--------------------
+  // console.log(user);
+  // return true;
+  return new Promise((resolve, reject) => {
+    bcrypt.compare(body.password, user.password, (err, res) => {
+      if (res) {
+        return resolve(true);
+      } else {
+        return reject({ error: "invalid password" });
+      }
+    });
+  });
+};
+
+//=========================================
+
+//++++++++++++Model Methods+++++++++++++++
 UserSchema.statics.findByToken = function(token) {
   let User = this;
   let decoded;
@@ -109,10 +127,10 @@ UserSchema.statics.findByCredentials = function(body) {
 
   return User.findOne({ email: body.email }).then(user => {
     if (!user) return Promise.reject({ error: "invalid email" });
-    return new Promise((response, reject) => {
+    return new Promise((resolve, reject) => {
       bcrypt.compare(body.password, user.password, (err, res) => {
         if (res) {
-          return response(user);
+          return resolve(user);
         } else {
           reject({ error: "invalid password" });
         }
@@ -120,6 +138,8 @@ UserSchema.statics.findByCredentials = function(body) {
     });
   });
 };
+
+//+++++++++++++++++++++++++++++++++++++++
 
 const User = mongoose.model("Users", UserSchema);
 
