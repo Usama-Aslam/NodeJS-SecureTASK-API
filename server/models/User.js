@@ -41,7 +41,17 @@ const UserSchema = new mongoose.Schema({
         required: true
       }
     }
-  ]
+  ],
+  emailVerified: {
+    token: {
+      type: String,
+      default: null
+    },
+    isVerified: {
+      type: Boolean,
+      default: false
+    }
+  }
 });
 
 // UserSchema.methods.toJSON = function() {

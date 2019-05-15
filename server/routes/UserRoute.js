@@ -6,8 +6,8 @@ const crypto = require("crypto");
 const { User } = require("../models/User");
 const { authentication } = require("../middleware/authentication");
 const {
-  emailAuthentication,
-  verificationEmail
+  sendEmailLink,
+  verifyEmailLink
 } = require("../middleware/verificationEmail");
 
 const router = new express.Router();
@@ -102,14 +102,14 @@ router.patch("/user/me", authentication, async (req, res) => {
   }
 });
 
-router.get("/user/send", emailAuthentication, (req, res) => {
+router.get("/user/send", [authentication, sendEmailLink], (req, res) => {
   try {
-    res.status(200).send("sent");
+    res.status(200).send(req.user);
   } catch (error) {
     res.status(408).send(error);
   }
 });
 
-router.get("/user/verify", verificationEmail, (req, res) => {});
+router.get("/user/verify", [authentication, verifyEmailLink], (req, res) => {});
 
 module.exports = router;
