@@ -12,18 +12,6 @@ const {
 
 const router = new express.Router();
 
-// var smtpTransport = nodemailer.createTransport({
-//   service: "Gmail",
-//   auth: {
-//     user: "uaslam345@gmail.com",
-//     pass: "03432226546@"
-//   },
-//   tls: {
-//     rejectUnauthorized: false
-//   }
-// });
-// var rand, mailOptions, host, link;
-
 const ValidField = (req, fields) => {
   const keys = Object.keys(req.body);
   const allowedFields = fields;
@@ -111,7 +99,7 @@ router.get("/user/send", [authentication, sendEmailLink], (req, res) => {
 });
 
 router.get("/user/verify", [authentication, verifyEmailLink], (req, res) => {
-  res.send();
+  res.status(200).send({ result: "email sent Successfully" });
 });
 
 module.exports = router;

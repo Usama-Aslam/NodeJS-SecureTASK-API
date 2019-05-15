@@ -60,8 +60,19 @@ const verifyEmailLink = (req, res, next) => {
     `${req.protocol}://${req.get("host")}` === `http://${req.get("host")}` &&
     req.query.id == emailVerified.token
   ) {
-    console.log("email verified");
-    res.send({ result: `Email ${email} is been Successfully verified` });
+    req.user
+      .updateOne(
+        {
+          $set: {
+            "emailVerified.isVerified": true
+          }
+        },
+        { new: true }
+      )
+      .then(() => {
+        console.log("email verified");
+        next();
+      });
   } else {
     console.log("email is not verified");
     res.send({ error: "Bad request" });
