@@ -22,7 +22,7 @@ const sendEmailLink = async (req, res, next) => {
   link = `http://${host}/user/verify?id=${rand}`;
 
   mailOptions = {
-    to: "uaslam345@gmail.com",
+    to: req.user.email,
     subject: `Please Verify Your Email`,
     html:
       "Hello,<br> Please Click on the link to verify your email.<br><a href=" +
@@ -32,37 +32,39 @@ const sendEmailLink = async (req, res, next) => {
   console.log(mailOptions);
 
   smtpTransport.sendMail(mailOptions, (err, response) => {
-    if (err) {
-      return Promise.reject(err);
+    try {
+      if (err) {
+        return res.status(400).end(err);
+      }
+      req.user
+        .updateOne(
+          {
+            $set: {
+              "emailVerified.token": rand
+            }
+          },
+          { new: true }
+        )
+        .then(user => {
+          next();
+        });
+    } catch (error) {
+      res.status(400).end(error);
     }
-    req.user
-      .update(
-        {
-          $set: {
-            "emailVerified.token": rand
-          }
-        },
-        { new: true }
-      )
-      .then(user => {
-        res.send(user);
-        next();
-      });
   });
 };
 
 const verifyEmailLink = (req, res, next) => {
-  if (`${req.protocol}://${req.get("host")}` === `http://${host}`) {
-    console.log("Domain is matched. Information is from Authentic email");
-    if (req.query.id == rand) {
-      console.log("email is verified", rand);
-      res.send("Email " + mailOptions.to + " is been Successfully verified");
-    } else {
-      console.log("email is not verified");
-      res.end("Bad Request");
-    }
+  const { email, emailVerified } = req.user;
+  if (
+    `${req.protocol}://${req.get("host")}` === `http://${req.get("host")}` &&
+    req.query.id == emailVerified.token
+  ) {
+    console.log("email verified");
+    res.send({ result: `Email ${email} is been Successfully verified` });
   } else {
-    res.send("<h1>Request is from unknown source</h1>");
+    console.log("email is not verified");
+    res.send({ error: "Bad request" });
   }
 };
 

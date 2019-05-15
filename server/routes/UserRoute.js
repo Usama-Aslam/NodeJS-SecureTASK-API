@@ -106,10 +106,12 @@ router.get("/user/send", [authentication, sendEmailLink], (req, res) => {
   try {
     res.status(200).send(req.user);
   } catch (error) {
-    res.status(408).send(error);
+    res.status(401).send(error);
   }
 });
 
-router.get("/user/verify", [authentication, verifyEmailLink], (req, res) => {});
+router.get("/user/verify", [authentication, verifyEmailLink], (req, res) => {
+  res.send();
+});
 
 module.exports = router;
