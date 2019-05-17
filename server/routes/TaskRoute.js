@@ -31,8 +31,13 @@ router.post("/task", authentication, async (req, res) => {
 
 router.get("/task", authentication, async (req, res) => {
   try {
-    const tasks = await Task.find({ _creator: req.user._id });
-    res.status(200).send({ tasks });
+    // const tasks = await Task.find({ _creator: req.user._id });
+    // res.status(200).send({ tasks });
+
+    //using populate method
+
+    await req.user.populate("tasks").execPopulate();
+    res.status(200).send({ task: req.user.tasks });
   } catch (error) {
     res.status(400).send({ error });
   }

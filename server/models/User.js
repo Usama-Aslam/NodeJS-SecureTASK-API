@@ -54,6 +54,12 @@ const UserSchema = new mongoose.Schema({
   }
 });
 
+UserSchema.virtual("tasks", {
+  ref: "Tasks",
+  localField: "_id",
+  foreignField: "_creator"
+});
+
 // UserSchema.methods.toJSON = function() {
 //   const user = this;
 //   //converting mongoose document into object so that we can get values from object
