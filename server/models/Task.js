@@ -15,6 +15,11 @@ const TaskSchema = new mongoose.Schema({
   completedAt: {
     type: Number,
     default: null
+  },
+  _creator: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: "Users"
   }
 });
 
