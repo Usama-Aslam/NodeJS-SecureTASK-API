@@ -61,7 +61,7 @@ router.post("/user/login", async (req, res) => {
     res.status(401).send(error);
   }
 });
-
+//updating password
 router.patch("/user/me", authentication, async (req, res) => {
   const updates = Object.keys(req.body);
   const fields = ["password", "newPassword", "confirmPassword"];
@@ -89,7 +89,7 @@ router.patch("/user/me", authentication, async (req, res) => {
     res.status(401).send(error);
   }
 });
-
+//email verification
 router.get("/user/send", [authentication, sendEmailLink], (req, res) => {
   try {
     res.status(200).send(req.user);
