@@ -1,4 +1,5 @@
 const express = require("express");
+const { ObjectID } = require("mongodb");
 const _ = require("lodash");
 const { Task } = require("../models/Task");
 
@@ -35,6 +36,19 @@ router.get("/task", async (req, res) => {
   }
 });
 
+router.get("/task/:id", async (req, res) => {
+  const id = req.params.id;
+  if (!ObjectID.isValid(id))
+    return res.status(400).send({ error: "invalid id" });
 
+  try {
+    const task = await Task.findById(id);
+    if (!task) return res.status(400).send({ error: "task not found" });
+
+    res.status(200).send(task);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
 
 module.exports = router;
