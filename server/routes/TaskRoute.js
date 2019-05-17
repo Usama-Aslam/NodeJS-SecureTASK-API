@@ -26,6 +26,15 @@ router.post("/task", async (req, res) => {
   }
 });
 
-router.get('/task')
+router.get("/task", async (req, res) => {
+  try {
+    const tasks = await Task.find();
+    res.status(200).send({ tasks });
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
+
 
 module.exports = router;
