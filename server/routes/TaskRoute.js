@@ -34,9 +34,18 @@ router.get("/task", authentication, async (req, res) => {
     // const tasks = await Task.find({ _creator: req.user._id });
     // res.status(200).send({ tasks });
 
+    const match = {};
     //using populate method
+    if (req.query.completed) {
+      match.completed = req.query.completed == "true";
+    }
+    await req.user
+      .populate({
+        path: "tasks",
+        match
+      })
+      .execPopulate();
 
-    await req.user.populate("tasks").execPopulate();
     res.status(200).send({ task: req.user.tasks });
   } catch (error) {
     res.status(400).send({ error });
