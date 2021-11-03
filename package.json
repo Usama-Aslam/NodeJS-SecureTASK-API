@@ -18,6 +18,6 @@
     "mongodb": "^3.2.4",
     "mongoose": "^5.5.7",
     "nodemailer": "^6.1.1",
-    "validator": "^10.11.0"
+    "validator": "^13.7.0"
   }
 }
